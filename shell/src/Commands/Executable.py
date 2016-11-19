@@ -13,7 +13,10 @@ class Executable(Command):
 
     def execute(self, shell_state):
         proc = subprocess.Popen([self.script_name, self.arguments], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                                shell=True) # It tunes subprocess, what it needs to execute, arguments and etc.
-        (out, err) = proc.communicate(input=shell_state.cur_result) # Execute and return result and error
+                               shell=False) # It tunes subprocess, what it needs to execute, arguments and etc.
+        proc.stdin.write(shell_state.cur_result.encode('utf-8'))
+        (out, err) = proc.communicate() # Execute and return result and error
+#         out = subprocess.check_output([self.script_name, self.arguments],
+#                        shell=True, stdin=StringIO.StringIO(shell_state.cur_result))
         shell_state.cur_result = out.decode('utf-8') # Decode result in Python3 string.
         # cur_result in shell_state saves current result to transfer it through pipe or to print.

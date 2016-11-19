@@ -10,7 +10,7 @@ def read_word(line):
     return re.search("^[" + valid_characters + "]*", line).group(0)  # Word made of valid characters.
 
 
-def read_argument(line):  # argument made of not-space chars.
+def read_argument(line):  # argument is made of not-space chars.
     cur_position = count_of_spaces(line)
     # We exclude quotes if they are there.
     if line[cur_position] == "'":
