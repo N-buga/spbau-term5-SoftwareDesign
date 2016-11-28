@@ -1,7 +1,7 @@
 from src.ParserSubst import *
 from src.Replacer import *
 
-from src.ParserCommand import *
+from src.ParserCommands import *
 
 
 # Main parse function. It manage the process.

@@ -6,7 +6,7 @@ from src.Commands.Executable import Executable
 from src.Commands.Exit import Exit
 from src.Commands.Pwd import Pwd
 from src.Commands.Wc import Wc
-from src.ParserCommand import parse_commands
+from src.ParserCommands import parse_commands
 
 
 class TestParserCommand(TestCase):
