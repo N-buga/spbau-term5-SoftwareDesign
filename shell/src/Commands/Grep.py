@@ -66,10 +66,13 @@ class Grep(Command):
         ans = ''
         cnt_after_line = self.args.A + 1
         for line in iterable:
-            if self.args.i:
-                iter = re.finditer(self.args.pattern, line, re.I)
-            else:
-                iter = re.finditer(self.args.pattern, line)
+            try:
+                if self.args.i:
+                    iter = re.finditer(self.args.pattern, line, re.I)
+                else:
+                    iter = re.finditer(self.args.pattern, line)
+            except:
+                raise NameError("Wrong pattern")
             prev_ind = 0
             for i in iter:
                 ans += line[prev_ind:i.start()]
