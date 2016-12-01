@@ -4,6 +4,7 @@ from src.Commands.Assignment import Assignment
 from src.Commands.Cat import Cat
 from src.Commands.Executable import Executable
 from src.Commands.Exit import Exit
+from src.Commands.Grep import Grep
 from src.Commands.Pwd import Pwd
 from src.Commands.Wc import Wc
 from src.ParserUtils import read_argument, read_word, count_of_spaces
@@ -21,7 +22,8 @@ class NameCommands: # KeyWords for definition wich command we need to create
     ECHO = "echo"
     PWD = "pwd"
     WC = "wc"
-    commands = ["exit", "cat", "echo", "pwd", "wc"] # this is direct command as they in the shell
+    GREP = "grep"
+    commands = ["exit", "cat", "echo", "pwd", "wc", "grep"] # this is direct command as they in the shell
 
 
 def create_command(name_command, string_arguments): # name_command - the KeyWord, string_arguments -
@@ -65,3 +67,6 @@ def create_command(name_command, string_arguments): # name_command - the KeyWord
 
     if name_command == NameCommands.WC:
         return Wc(string_arguments.split()) # We suppose that each argument - name of file. It checks in execute
+
+    if name_command == NameCommands.GREP:
+        return Grep(string_arguments)
