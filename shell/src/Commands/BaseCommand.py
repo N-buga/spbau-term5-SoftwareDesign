@@ -5,4 +5,4 @@
 
 class Command:
     def execute(self, shell_state):
-        pass
+        raise NotImplementedError
