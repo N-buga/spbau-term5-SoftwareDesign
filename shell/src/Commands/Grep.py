@@ -23,7 +23,7 @@ class ThrowingArgumentParser(argparse.ArgumentParser):
 # Grep finds all matching some pattern in file or data from pipe.
 
 class Grep(Command):
-    def __init__(self, string_arguments):
+    def __init__(self, string_arguments:str):
         # initialization available keys
         parser = ThrowingArgumentParser(add_help=True, prog='grep', description='search the pattern in text')
         parser.add_argument('-i', action='store_true', help='ignore register')

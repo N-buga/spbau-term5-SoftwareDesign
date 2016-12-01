@@ -5,7 +5,7 @@ from src.ParserUtils import read_word, count_of_spaces, read_argument
 # Command, that means assignment, it changes current Environment.
 
 class Assignment(Command):
-    def __init__(self, arguments):  # Initialize arguments, means "variable = value"
+    def __init__(self, arguments:str):  # Initialize arguments, means "variable = value"
         self.variable = read_word(arguments) # read_word - read a word from string, i.e.
                                           # read till the current char is valid(valid chars you can see in Utils).
         # variable can be only a word.

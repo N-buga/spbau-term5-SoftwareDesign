@@ -5,7 +5,7 @@ from src.Commands.BaseCommand import Command
 
 
 class Echo(Command):
-    def __init__(self, arguments):
+    def __init__(self, arguments:str):
         self.arguments = arguments
         if isinstance(self.arguments, str):
             self.arguments = ParserUtils.delete_quotes(self.arguments)

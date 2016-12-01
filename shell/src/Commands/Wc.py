@@ -7,7 +7,7 @@ from src.Commands.BaseCommand import Command
 
 
 class Wc(Command):
-    def __init__(self, arguments):
+    def __init__(self, arguments:str):
         self.arguments = arguments
 
     def execute(self, shell_state):

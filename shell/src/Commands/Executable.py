@@ -9,7 +9,7 @@ from src.ParserUtils import read_argument
 
 
 class Executable(Command):
-    def __init__(self, arguments):  # arguments - for executing script
+    def __init__(self, arguments:str):  # arguments - for executing script
         self.script_name = read_argument(arguments) # read till char is not white space
         self.arguments = arguments[len(self.script_name):]
 
