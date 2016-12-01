@@ -31,11 +31,11 @@ class TestCat(unittest.TestCase):
 
         c[0].execute(self.state)
         self.assertEqual(self.variables, self.state.variables)
-        self.assertEqual(content1 + '\n', self.state.cur_result)
+        self.assertEqual(content1, self.state.cur_result)
 
         c[1].execute(self.state)
         self.assertEqual(self.variables, self.state.variables)
-        self.assertEqual(content1 + '\n' + content2 + '\n', self.state.cur_result)
+        self.assertEqual(content1 + '\n' + content2, self.state.cur_result)
 
         for fp in test_f:
             fp.close()

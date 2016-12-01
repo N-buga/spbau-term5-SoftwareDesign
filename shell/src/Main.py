@@ -16,9 +16,9 @@ class State:  # Current state of shell
 
 
 if __name__ == "__main__":
+    state = State()
     while True:  # Read line by line
         line = input()
-        state = State()
         if line == "":
             continue
         try:
@@ -30,9 +30,12 @@ if __name__ == "__main__":
         except SyntaxError as e:
             print(e)
             continue
-        for command in commands:
-            try:
-                command.execute(state)
-                print(state.cur_result)
-            except NameError as e:  # ProcessingError from execute
-                print(e)
+
+        try:
+            for command in commands:
+                    command.execute(state)
+        except NameError as e:  # ProcessingError from execute
+            print(e)
+            continue
+
+        print(state.cur_result)

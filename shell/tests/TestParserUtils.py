@@ -27,3 +27,9 @@ class TestParserUtils(TestCase):
         self.assertEqual(actual_res, res1)
         self.assertEqual(actual_res, res2)
 
+    def test_delete_quotes(self):
+        s = "AAA'B\"C'DD\"A'''BD\"Q"
+        actual_res = "AAAB\"CDDA'''BDQ"
+        res = delete_quotes(s)
+        self.assertEqual(res, actual_res)
+

@@ -34,3 +34,31 @@ def count_of_spaces(line):  # Count of white spaces at the beginning of string.
         else:
             return i
     return len_line
+
+
+def delete_quotes(string):
+    if string is None: return
+    last_quote = ''
+    last_not_taken_ind = 0
+    sub_str_list = []
+    for i in range(len(string)):
+        if string[i] == '"':
+            if last_quote == '':
+                last_quote = "\""
+                sub_str_list.append(string[last_not_taken_ind:i])
+                last_not_taken_ind = i + 1
+            elif last_quote == "\"":
+                sub_str_list.append(string[last_not_taken_ind:i])
+                last_not_taken_ind = i + 1
+                last_quote = ''
+        if string[i] == "'":
+            if last_quote == '':
+                last_quote = "'"
+                sub_str_list.append(string[last_not_taken_ind:i])
+                last_not_taken_ind = i + 1
+            elif last_quote == "'":
+                sub_str_list.append(string[last_not_taken_ind:i])
+                last_not_taken_ind = i + 1
+                last_quote = ''
+    sub_str_list.append(string[last_not_taken_ind:])
+    return ''.join(sub_str_list)
