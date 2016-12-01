@@ -1,15 +1,23 @@
+import os
 import subprocess
 
 from src.Commands.BaseCommand import Command
 
 
 # Execute file. It's been checked that file exists and is executable.
+from src.ParserUtils import read_argument
 
 
 class Executable(Command):
-    def __init__(self, script_name, arguments):  # arguments - for executing script
-        self.script_name = script_name
-        self.arguments = arguments
+    def __init__(self, arguments):  # arguments - for executing script
+        self.script_name = read_argument(arguments) # read till char is not white space
+        self.arguments = arguments[len(self.script_name):]
+
+        if os.path.exists(self.script_name):
+            if not os.access(self.script_name, os.X_OK): # if this file is executable
+                raise NameError("File " + '"' + self.script_name + '"' + " doesn't executable")
+        else:
+            raise NameError("File " + "'" + self.script_name + "'" + " doesn't exist")
 
     def execute(self, shell_state):
         proc = subprocess.Popen([self.script_name, self.arguments], stdout=subprocess.PIPE, stdin=subprocess.PIPE,

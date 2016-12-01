@@ -32,7 +32,7 @@ class TestExecutable(unittest.TestCase):
         tmp = self.create_tmp("#!/bin/bash\necho " + '"' + result + '"')
 
         try:
-            exec = Executable(tmp.name, "")
+            exec = Executable(tmp.name + "")
             self.check_and_execute(exec, tmp, result)
         finally:
             tmp.close()
@@ -42,7 +42,7 @@ class TestExecutable(unittest.TestCase):
 
         tmp = self.create_tmp("#!/bin/bash\necho $1")
         try:
-            exec = Executable(tmp.name, result)
+            exec = Executable(tmp.name + " " + result)
             self.check_and_execute(exec, tmp, result)
         finally:
             tmp.close()

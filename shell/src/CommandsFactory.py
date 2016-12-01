@@ -32,29 +32,10 @@ def create_command(name_command, string_arguments): # name_command - the KeyWord
         return Exit()
 
     if name_command == NameCommands.ASSIGNMENT:
-        var = read_word(string_arguments) # read_word - read a word from string, i.e.
-                                          # read till the current char is valid(valid chars you can see in Utils).
-        # variable can be only a word.
-        cur_position = len(var)
-        cur_position += count_of_spaces(string_arguments[cur_position:]) # return count of spaces at he beginning
-        # of argument string
-        if string_arguments[cur_position] != '=':
-            # We are supposed to find '=', but if we don't find - we throw exception.
-            raise NameError("Unknown command: " + string_arguments)
-        cur_position += 1
-        val = read_argument(string_arguments[cur_position:]) # read till char is not white space.
-        # If there are more then variable and value, we ignore it. It isn't a syntax error.
-        return Assignment(var, val)
+        return Assignment(string_arguments)
 
     if name_command == NameCommands.EXECUTABLE:
-        name_script = read_argument(string_arguments) # read till char is not white space
-        if os.path.exists(name_script):
-            if os.access(name_script, os.X_OK): # if this file is executable
-                return Executable(name_script, string_arguments[len(name_script):])
-            else:
-                raise NameError("File " + '"' + name_script + '"' + " doesn't executable")
-        else:
-            raise NameError("File " + "'" + name_script + "'" + " doesn't exist")
+        return Executable(string_arguments)
 
     if name_command == NameCommands.CAT:
         return Cat(string_arguments.split()) # We suppose that each argument - name of file. It checks in execute

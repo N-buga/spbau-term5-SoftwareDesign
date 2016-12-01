@@ -10,11 +10,11 @@ class TestAssignment(unittest.TestCase):
         self.variables = {}
 
     def test_assignment(self):
-        test_data = [(1, "ava"), ("one", "two")]
+        test_data = [("1", "ava"), ("one", "two")]
 
         a = []
         for tpl in test_data:
-            cur_a = Assignment(*tpl)
+            cur_a = Assignment(tpl[0] + "=" + tpl[1])
             self.assertEqual((cur_a.variable, cur_a.value), tpl)
             a.append(cur_a)
 
