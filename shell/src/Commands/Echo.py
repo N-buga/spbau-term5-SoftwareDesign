@@ -1,11 +1,12 @@
 from src import ParserUtils
 from src.Commands.BaseCommand import Command
 
+
 # Echo data that goes after it.
 
 
 class Echo(Command):
-    def __init__(self, arguments:str):
+    def __init__(self, arguments: str):
         self.arguments = arguments
         if isinstance(self.arguments, str):
             self.arguments = ParserUtils.delete_quotes(self.arguments)

@@ -38,7 +38,6 @@ class Wc(Command):
             shell_state.cur_result = '\n'.join(result)
             # cur_result in shell_state saves current result to transfer it through pipe or to print.
         else:
-            print(shell_state.cur_result)
             result = [str(len(shell_state.cur_result.split('\n'))), str(len(shell_state.cur_result.split())),
                       str(len(bytearray(shell_state.cur_result.encode())))]
             # it there are no arguments then we take data from pipe, from cur_result in shell_state.
