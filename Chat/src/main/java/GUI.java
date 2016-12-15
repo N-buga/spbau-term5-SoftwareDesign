@@ -1,35 +1,31 @@
+import org.apache.log4j.Logger;
+
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
-import sun.rmi.runtime.Log;
-
 /**
  * Created by n_buga on 26.10.16.
+ * It is the class implements GUI. It has default pane, that is showed in any wrong situation and at the begin.
+ * ChatPane is a class that describe the chat pane, that is showed then users are chatting to each other.
+ * It has different constructors(for client and server mode) and method printMsg which shows the message on the screen.
+ * Class implements interface GUIInterface needed to Controller work.
  */
-public class GUI {
+public class GUI implements GUIInterface {
 
     private static final Logger log = Logger.getLogger(GUI.class.getName());
-    private static final ReentrantLock lock = new ReentrantLock();
-
-    private static final JFrame mainFrame = new JFrame("SuperChat");
-    private static final JRootPane defaultPane = new JRootPane();
-    private static ChatPane chatPane = null;
     private static final Dimension defaultScrollDimension = new Dimension(300, 50);
 
-    private static Connection connection;
+    private final ReentrantLock lock = new ReentrantLock();
+    private final JFrame mainFrame = new JFrame("SuperChat");
+    private final JRootPane defaultPane = new JRootPane();
+    private final Controller controller;
+    private ChatPane chatPane = null;
 
-    static {
-        BasicConfigurator.configure();
-
-        log.info("Log configured");
-
+    {
         mainFrame.setSize(400, 500);
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -37,8 +33,13 @@ public class GUI {
         createDefaultPane();
     }
 
-    private static class ChatPane {
-        private static final Logger log = Logger.getLogger(ChatPane.class.getName());
+    public GUI(Controller controller) {
+        this.controller = controller;
+        paintDefaultWindow();
+    }
+
+    public class ChatPane {
+        private final Logger log = Logger.getLogger(ChatPane.class.getName());
 
         private final JRootPane chatPane = new JRootPane();
         private final Container infoContainer = new Container();
@@ -48,22 +49,19 @@ public class GUI {
         private final JTextArea yourMsg = new JTextArea();
         private final JButton returnButton = new JButton("\u25C4");
         private final JButton sendButton = new JButton("send");
+
         private String nickname = "?";
 
         {
             returnButton.addActionListener(e -> {
-                try {
-                    connection.close();
-                } catch (IOException ignored) {
-                }
-                restart();
+                controller.restart();
             });
 
             sendButton.addActionListener(e -> {
                 String msg = yourMsg.getText();
                 String nick = nickname;
-                Connection.Msg newMsg = new Connection.Msg(nick, msg);
-                GUI.printMsg(newMsg);
+                Msg newMsg = new Msg(nick, msg);
+                GUI.this.printMsg(newMsg);
                 sendMsg(newMsg);
             });
 
@@ -115,14 +113,9 @@ public class GUI {
             return chatPane;
         }
 
-        public void printMsg(String msg, String nick) {
-            System.out.println(msg);
-
-            DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-            Date dateobj = new Date();
-
-            JLabel info = new JLabel("<html> <font color = 'green'>" + nick + "</font>: " + df.format(dateobj) + " </html>");
-            JLabel newMsg = new JLabel("<html> " +  msg.replaceAll("\n", "<br>") + " </html>");
+        public void printMsg(Msg msg) {
+            JLabel info = getInfoXML(msg);
+            JLabel newMsg = getMsgXML(msg);
 
             panelForScroll.add(info);
             panelForScroll.add(newMsg);
@@ -130,51 +123,47 @@ public class GUI {
             panelForScroll.revalidate();
             panelForScroll.repaint();
 
-            log.info("Show msg " + msg + " in GUI");
+            log.info("Show msg " + msg.getMessage() + " in GUI");
+        }
+
+        public JLabel getInfoXML(Msg msg) {
+            DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+            Date dateobj = new Date();
+
+            return new JLabel("<html> <font color = 'green'>" + msg.getNickname()
+                    + "</font>: " + df.format(dateobj) + " </html>");
+        }
+
+        public JLabel getMsgXML(Msg msg) {
+            return new JLabel("<html> " +  msg.getMessage().replaceAll("\n", "<br>") + " </html>");
         }
     }
 
-    public static void main(String[] args) {
-        connection = new Connection();
-        paintDefaultWindow();
-    }
-
-    public static void restart() {
+    public void restart() {
         log.info("Restart");
         lock.lock();
             chatPane = null;
-            if (connection.getState() == Connection.State.Run) {
-                try {
-                    connection.close();
-                } catch (IOException ignored) {
-                }
-            }
         lock.unlock();
         paintDefaultWindow();
     }
 
-    public static void printMsg(Connection.Msg msg) {
+    public void printMsg(Msg msg) {
+        lock.lock();
         if (chatPane == null) {
-            restart();
+            lock.unlock();
+            controller.restart();
         } else {
-            chatPane.printMsg(msg.getMessage(), msg.getNickname());
-            if (chatPane != null) {
-                mainFrame.repaint();  //??? do i need it really?
-            }
+            chatPane.printMsg(msg);
+            mainFrame.repaint();  //??? do i need it really?
+            lock.unlock();
         }
     }
 
-    private static void sendMsg(Connection.Msg newMsg) {
-        try {
-            connection.sendMsg(newMsg);
-        } catch (IOException e) {
-            log.error(e);
-            JOptionPane.showMessageDialog(mainFrame, "Problem with connection!");
-            restart();
-        }
+    protected void sendMsg(Msg newMsg) {
+        controller.sendMsg(newMsg);
     }
 
-    private static void createDefaultPane() {
+    private void createDefaultPane() {
         final JButton buttonServer = new JButton(
                 "<html> <font color = 'blue'> Begin SuperChat in Server mode </font></html>");
         final JButton buttonClient = new JButton(
@@ -199,7 +188,7 @@ public class GUI {
         log.info("Created default pane");
     }
 
-    private static void paintDefaultWindow() {
+    private void paintDefaultWindow() {
         mainFrame.setTitle("SuperChat");
         lock.lock();
             mainFrame.setContentPane(defaultPane);
@@ -209,7 +198,7 @@ public class GUI {
         log.info("Painted default window");
     }
 
-    private static void workInClientMode() {
+    private void workInClientMode() {
         log.info("Work in client mode");
 
         String nickname = JOptionPane.showInputDialog("Enter your Nickname:", "Meau");
@@ -224,12 +213,10 @@ public class GUI {
             return;
         }
 
-        try {
-            connection.connect(host);
-        } catch (IOException e) {
-            log.error(e);
+        boolean lucky = controller.createConnection(host);
+        if (!lucky) {
             JOptionPane.showMessageDialog(mainFrame, "Problem with connection!");
-            restart();
+            controller.restart();
             return;
         }
 
@@ -247,32 +234,27 @@ public class GUI {
         log.info("Printed ChatPane for client");
     }
 
-    private static void workInServerMode() {
+    private void workInServerMode() {
         log.info("Work in server mode");
-        (new Thread(() -> {
-            String nickname = JOptionPane.showInputDialog("Enter your Nickname:", "Meau");
-            if (nickname == null) {
-                restart();
-                return;
-            }
+        String nickname = JOptionPane.showInputDialog("Enter your Nickname:", "Meau");
+        if (nickname == null) {
+            restart();
+            return;
+        }
 
-            try {
-                mainFrame.setEnabled(false);
-                mainFrame.setTitle("Awaiting connection...");
-                connection.connect();
-                mainFrame.setEnabled(true);
-            } catch (IOException e) {
-                mainFrame.setEnabled(true);
-                log.error(e);
+        new Thread(() -> {
+            frozeMainFrame("Awaiting connection...");
+            boolean lucky = controller.createConnection();
+            if (lucky) {
+                unfrozeMainFrame("Server Mode");
+            } else {
                 JOptionPane.showMessageDialog(mainFrame, "Problem with connection!");
-                restart();
+                controller.restart();
                 return;
             }
 
             chatPane = new ChatPane(nickname);
             JRootPane chatRootPane = chatPane.getChatPane();
-
-            mainFrame.setTitle("Server mode");
 
             mainFrame.setContentPane(chatRootPane);
             lock.lock();
@@ -281,6 +263,16 @@ public class GUI {
             }
             lock.unlock();
             log.info("Printed ChatPane for server");
-        })).start();
+        }).start();
+    }
+
+    private void frozeMainFrame(String titleMsg) {
+        mainFrame.setEnabled(false);
+        mainFrame.setTitle(titleMsg);
+    }
+
+    private void unfrozeMainFrame(String titleMsg) {
+        mainFrame.setEnabled(true);
+        mainFrame.setTitle(titleMsg);
     }
 }

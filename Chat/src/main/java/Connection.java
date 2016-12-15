@@ -1,7 +1,5 @@
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
-import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -11,10 +9,15 @@ import java.net.SocketTimeoutException;
 
 /**
  * Created by n_buga on 09.11.16.
+ * This class create a connection. It can work as client(you need to call accept method with argument) and as
+ * server(you need to call accept method without argument - it's blocking).
+ * This class implements interface, so it implements methods needed for Chat interaction.
+ * It can be in three different states.
  */
-public class Connection implements Closeable{
+public class Connection implements ConnectionInterface {
     private final static Logger log = Logger.getLogger(Connection.class.getName());
     private final int PORT = 6666;
+    private final Controller controller;
 
     private Socket socket;
     private DataInputStream in;
@@ -23,45 +26,8 @@ public class Connection implements Closeable{
 
     public enum State {Wait, Run, Close}
 
-    public static class Msg {
-        private final static Logger log = Logger.getLogger(Msg.class.getName());
-
-        private String nickname;
-        private String message;
-
-        public Msg() {
-                log.info("Create empty msg");
-        }
-
-        public Msg(String nickname, String message) {
-            this.nickname = nickname;
-            this.message = message;
-            log.info("Create msg: nickname = " + nickname + "; message = " + message);
-        }
-
-        public String getNickname() {
-            return nickname;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void write(DataOutputStream out) throws IOException {
-            out.writeUTF(nickname);
-            out.writeUTF(message);
-            log.info("Send message: nickname = " + nickname + "; message = " + message);
-        }
-
-        public Msg read(DataInputStream in) throws IOException {
-            nickname = in.readUTF();
-            message = in.readUTF();
-            log.info("Read message: nickname = " + nickname + "; message = " + message);
-            return this;
-        }
-    }
-
-    public Connection() {
+    public Connection(Controller controller) {
+        this.controller = controller;
         log.info("Create connection");
     }
 
@@ -98,7 +64,7 @@ public class Connection implements Closeable{
             try {
                 Msg msg = readMsg();
                 log.info("Read msg");
-                GUI.printMsg(msg);
+                controller.printMsg(msg);
             } catch (IOException e) {
                 log.error(e);
                 break;
@@ -108,7 +74,7 @@ public class Connection implements Closeable{
             close();
         } catch (IOException ignored) {
         }
-        GUI.restart();
+        controller.restart();
     }
 
     public void createStreams() throws IOException {
@@ -119,11 +85,13 @@ public class Connection implements Closeable{
 
     @Override
     public void close() throws IOException {
-        state = State.Close;
-        in.close();
-        out.close();
-        socket.close();
-        socket = null;
+        if (state == State.Run) {
+            state = State.Close;
+            in.close();
+            out.close();
+            socket.close();
+            socket = null;
+        }
         log.info("Connection closed");
     }
 
@@ -133,9 +101,5 @@ public class Connection implements Closeable{
 
     public Msg readMsg() throws IOException {
         return (new Msg()).read(in);
-    }
-
-    public State getState() {
-        return state;
     }
 }
