@@ -42,6 +42,7 @@ public class TestIntegration extends Assert {
         }
         method.setAccessible(true);
         try {
+            method.invoke(gui, msgNickname);
             method.invoke(gui, msg1);
             method.invoke(gui, msg2);
             assertEquals(connection.sentMsgs.size(), 3);
