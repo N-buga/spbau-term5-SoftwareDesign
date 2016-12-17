@@ -2,12 +2,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.naming.ldap.Control;
 import javax.swing.*;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,12 +16,14 @@ public class TestGUI extends Assert{
     private GUI gui;
     private Msg msg1;
     private Msg msg2;
+    private Msg msgNickname;
 
     @Before
     public void init() {
         gui = new GUI(null);
-        msg1 = new Msg("me", "Ou");
-        msg2 = new Msg("me", "Ou2");
+        msg1 = new Msg(Msg.MsgType.UsualMsg, "Ou");
+        msg2 = new Msg(Msg.MsgType.UsualMsg, "Ou2");
+        msgNickname = new Msg(Msg.MsgType.Nickname, "me");
     }
 
     @Test
@@ -41,16 +39,17 @@ public class TestGUI extends Assert{
         field.setAccessible(true);
         try {
             JPanel panelForScroll = (JPanel) field.get(testChatPane);
-            testChatPane.printMsg(msg1);
-            testChatPane.printMsg(msg2);
+            testChatPane.setAlienNickname(msgNickname.getContains());
+            testChatPane.printMsg(msgNickname.getContains(), msg1.getContains());
+            testChatPane.printMsg(msgNickname.getContains(), msg2.getContains());
             assertEquals(4, panelForScroll.getComponentCount());
             List<String> contains = Arrays.stream(panelForScroll.getComponents()).map(c -> (JLabel) c)
                     .map(JLabel::getText).collect(Collectors.toList());
             List<String> needToBe = new ArrayList<String>() {{
-                add(testChatPane.getInfoXML(msg1).getText());
-                add(testChatPane.getMsgXML(msg1).getText());
-                add(testChatPane.getInfoXML(msg2).getText());
-                add(testChatPane.getMsgXML(msg2).getText());
+                add(testChatPane.getInfoXML(msgNickname.getContains()).getText());
+                add(testChatPane.getMsgXML(msg1.getContains()).getText());
+                add(testChatPane.getInfoXML(msgNickname.getContains()).getText());
+                add(testChatPane.getMsgXML(msg2.getContains()).getText());
             }};
             assertEquals(needToBe, contains);
         } catch (IllegalAccessException e) {

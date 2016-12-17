@@ -50,18 +50,16 @@ public class GUI implements GUIInterface {
         private final JButton returnButton = new JButton("\u25C4");
         private final JButton sendButton = new JButton("send");
 
-        private String nickname = "?";
+        private String thisNickname = "?";
+        private String alienNickname;
 
         {
-            returnButton.addActionListener(e -> {
-                controller.restart();
-            });
+            returnButton.addActionListener(e -> controller.restart());
 
             sendButton.addActionListener(e -> {
                 String msg = yourMsg.getText();
-                String nick = nickname;
-                Msg newMsg = new Msg(nick, msg);
-                GUI.this.printMsg(newMsg);
+                Msg newMsg = new Msg(Msg.MsgType.UsualMsg, msg);
+                printMsg(thisNickname, msg);
                 sendMsg(newMsg);
             });
 
@@ -94,7 +92,7 @@ public class GUI implements GUIInterface {
 
         public ChatPane(String nickname) {
             this();
-            this.nickname = nickname;
+            this.thisNickname = nickname;
             infoContainer.add(new JLabel("Your are: "));
             infoContainer.add(new JLabel("<html><font color='red'>" + nickname + "</font></html>"));
 
@@ -109,12 +107,16 @@ public class GUI implements GUIInterface {
             log.info("Add host name <" + host + "> to layout");
         }
 
+        public void setAlienNickname(String nickname) {
+            this.alienNickname = nickname;
+        }
+
         public JRootPane getChatPane() {
             return chatPane;
         }
 
-        public void printMsg(Msg msg) {
-            JLabel info = getInfoXML(msg);
+        public void printMsg(String nickname, String msg) {
+            JLabel info = getInfoXML(nickname);
             JLabel newMsg = getMsgXML(msg);
 
             panelForScroll.add(info);
@@ -123,39 +125,52 @@ public class GUI implements GUIInterface {
             panelForScroll.revalidate();
             panelForScroll.repaint();
 
-            log.info("Show msg " + msg.getMessage() + " in GUI");
+            log.info("Show msg " + msg + " in GUI");
         }
 
-        public JLabel getInfoXML(Msg msg) {
+        public JLabel getInfoXML(String nickname) {
             DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
             Date dateobj = new Date();
 
-            return new JLabel("<html> <font color = 'green'>" + msg.getNickname()
+            return new JLabel("<html> <font color = 'green'>" + nickname
                     + "</font>: " + df.format(dateobj) + " </html>");
         }
 
-        public JLabel getMsgXML(Msg msg) {
-            return new JLabel("<html> " +  msg.getMessage().replaceAll("\n", "<br>") + " </html>");
+        public JLabel getMsgXML(String msg) {
+            return new JLabel("<html> " +  msg.replaceAll("\n", "<br>") + " </html>");
+        }
+
+        public String getAlienNickname() {
+            return alienNickname;
         }
     }
 
     public void restart() {
         log.info("Restart");
         lock.lock();
+            log.info("Get lock restart");
             chatPane = null;
+            log.info("Return lock restart");
         lock.unlock();
         paintDefaultWindow();
     }
 
-    public void printMsg(Msg msg) {
+    public void handleMsg(Msg msg) {
         lock.lock();
+        log.info("Get lock handleMsg");
         if (chatPane == null) {
+            log.info("Return lock handleMsg, chatPane == null");
             lock.unlock();
             controller.restart();
         } else {
-            chatPane.printMsg(msg);
-            mainFrame.repaint();  //??? do i need it really?
-            lock.unlock();
+            if (msg.getType() == Msg.MsgType.UsualMsg) {
+                chatPane.printMsg(chatPane.getAlienNickname(), msg.getContains());
+                log.info("Return lock handleMsg, chatPane != null");
+                lock.unlock();
+            } else {
+                chatPane.setAlienNickname(msg.getContains());
+                lock.unlock();
+            }
         }
     }
 
@@ -191,7 +206,9 @@ public class GUI implements GUIInterface {
     private void paintDefaultWindow() {
         mainFrame.setTitle("SuperChat");
         lock.lock();
+            log.info("Get lock paintDefaultWindow");
             mainFrame.setContentPane(defaultPane);
+            log.info("Retutn lock paintDefaultWindow");
         lock.unlock();
         mainFrame.setVisible(true);
 
@@ -213,6 +230,8 @@ public class GUI implements GUIInterface {
             return;
         }
 
+        chatPane = new ChatPane(nickname, host);
+
         boolean lucky = controller.createConnection(host);
         if (!lucky) {
             JOptionPane.showMessageDialog(mainFrame, "Problem with connection!");
@@ -220,16 +239,19 @@ public class GUI implements GUIInterface {
             return;
         }
 
-        chatPane = new ChatPane(nickname, host);
-        JRootPane chatRootPane = chatPane.getChatPane();
+        sendMsg(new Msg(Msg.MsgType.Nickname, nickname));
 
         mainFrame.setTitle("Client mode");
 
-        mainFrame.setContentPane(chatRootPane);
+        mainFrame.setContentPane(chatPane.getChatPane());
+        mainFrame.repaint();
+
         lock.lock();
+            log.info("Get lock workInClientMode");
             if (chatPane != null) {
                 mainFrame.setVisible(true);
             }
+            log.info("Return lock workInClientMode");
         lock.unlock();
         log.info("Printed ChatPane for client");
     }
@@ -243,9 +265,11 @@ public class GUI implements GUIInterface {
         }
 
         new Thread(() -> {
+            chatPane = new ChatPane(nickname);
             frozeMainFrame("Awaiting connection...");
             boolean lucky = controller.createConnection();
             if (lucky) {
+                sendMsg(new Msg(Msg.MsgType.Nickname, nickname));
                 unfrozeMainFrame("Server Mode");
             } else {
                 JOptionPane.showMessageDialog(mainFrame, "Problem with connection!");
@@ -253,14 +277,14 @@ public class GUI implements GUIInterface {
                 return;
             }
 
-            chatPane = new ChatPane(nickname);
-            JRootPane chatRootPane = chatPane.getChatPane();
-
-            mainFrame.setContentPane(chatRootPane);
+            mainFrame.setContentPane(chatPane.getChatPane());
+            mainFrame.repaint();
             lock.lock();
+            log.info("Get lock workInServerMode");
             if (chatPane != null) {
                 mainFrame.setVisible(true);
             }
+            log.info("Return lock workInServerMode");
             lock.unlock();
             log.info("Printed ChatPane for server");
         }).start();

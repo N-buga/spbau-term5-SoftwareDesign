@@ -62,7 +62,13 @@ public class Connection implements ConnectionInterface {
     private void tryToReadMsg() {
         while (state == State.Run) {
             try {
-                Msg msg = readMsg();
+                Msg msg;
+                try {
+                    msg = readMsg();
+                } catch (IllegalArgumentException e) {
+                    log.error(e);
+                    continue;
+                }
                 log.info("Read msg");
                 controller.printMsg(msg);
             } catch (IOException e) {

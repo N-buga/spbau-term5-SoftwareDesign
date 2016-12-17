@@ -11,37 +11,47 @@ import java.io.IOException;
 public class Msg {
     private final static Logger log = Logger.getLogger(Msg.class.getName());
 
-    private String nickname;
-    private String message;
+    public enum MsgType {
+        UsualMsg,
+        Nickname
+    }
+
+    private String contains;
+    private MsgType type;
 
     public Msg() {
         log.info("Create empty msg");
     }
 
-    public Msg(String nickname, String message) {
-        this.nickname = nickname;
-        this.message = message;
-        log.info("Create msg: nickname = " + nickname + "; message = " + message);
+    public Msg(MsgType type, String contains) {
+        this.type = type;
+        this.contains = contains;
+        log.info("Create msg: type = " + type + "; contains = " + contains);
     }
 
-    public String getNickname() {
-        return nickname;
+    public String getContains() {
+        return contains;
     }
 
-    public String getMessage() {
-        return message;
+    public MsgType getType() {
+        return type;
     }
 
     public void write(DataOutputStream out) throws IOException {
-        out.writeUTF(nickname);
-        out.writeUTF(message);
-        log.info("Send message: nickname = " + nickname + "; message = " + message);
+        out.writeByte(type.ordinal());
+        out.writeUTF(contains);
+        log.info("Send message: type = " + type + "; contains = " + contains);
     }
 
     public Msg read(DataInputStream in) throws IOException {
-        nickname = in.readUTF();
-        message = in.readUTF();
-        log.info("Read message: nickname = " + nickname + "; message = " + message);
+        Byte intType = in.readByte();
+        if (intType > 1) {
+            in.readUTF();
+            throw new IllegalArgumentException("Got wrong type");
+        }
+        type = MsgType.values()[intType];
+        contains = in.readUTF();
+        log.info("Read message: type = " + type + "; contains = " + contains);
         return this;
 
     }

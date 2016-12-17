@@ -5,5 +5,5 @@
  */
 public interface GUIInterface {
     void restart();
-    void printMsg(Msg msg);
+    void handleMsg(Msg msg);
 }

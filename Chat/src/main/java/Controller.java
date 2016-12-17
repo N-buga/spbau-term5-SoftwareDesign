@@ -37,7 +37,7 @@ public class Controller {
     }
 
     public void printMsg(Msg msg) {
-        gui.printMsg(msg);
+        gui.handleMsg(msg);
     }
 
     public boolean createConnection(String host) {

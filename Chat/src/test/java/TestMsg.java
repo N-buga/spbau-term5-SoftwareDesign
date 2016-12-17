@@ -14,8 +14,11 @@ public class TestMsg extends Assert {
         BasicConfigurator.configure();
         String nick = "abc";
         String msgString = "I u to";
-        Msg msg1 = new Msg(nick, msgString);
-        assertEquals(nick, msg1.getNickname());
-        assertEquals(msgString, msg1.getMessage());
+        Msg msg1 = new Msg(Msg.MsgType.UsualMsg, msgString);
+        Msg msg2 = new Msg(Msg.MsgType.Nickname, nick);
+        assertEquals(nick, msg2.getContains());
+        assertEquals(Msg.MsgType.UsualMsg, msg1.getType());
+        assertEquals(msgString, msg1.getContains());
+        assertEquals(Msg.MsgType.Nickname, msg2.getType());
     }
 }
