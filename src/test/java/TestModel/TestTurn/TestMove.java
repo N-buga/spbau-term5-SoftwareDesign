@@ -70,4 +70,23 @@ public class TestMove extends Assert{
         assertTrue(start.equals(mob.getPosition()));
     }
 
+    @Test
+    public void playerMoveOutOfBounds() {
+        final int colLen = 5;
+        final int strLen = 5;
+        Player player = new Player();
+        Move move1 = new Move(-1, 0);
+        Move move2 = new Move(0, 5);
+        State state = new StateBuilder(colLen, strLen).setPlayer(player).build();
+
+        assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
+
+        move1.execute(state, player);
+
+        assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
+
+        move2.execute(state, player);
+
+        assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
+    }
 }

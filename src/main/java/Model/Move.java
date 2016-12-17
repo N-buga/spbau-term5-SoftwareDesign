@@ -11,16 +11,23 @@ public class Move implements Turn {
         this.newPosition = newPosition;
     }
 
+    public Move(int i, int j) {
+        this.newPosition = new MapObject.Position(i, j);
+    }
+
     public void execute(State state, Character curCharacter) {
         Map map = state.getMap();
-        if (map.getCell(newPosition).isWall()) {
+        if (map.outOfMap(newPosition) || map.getCell(newPosition).isWall()) {
             return;
         }
         MapObject.Position position = curCharacter.getPosition();
         Cell curCell = map.getCell(position);
         curCell.delete(curCharacter);
         Cell newCell = map.getCell(newPosition);
-        curCharacter.handle(newCell.getMapObjects());
         newCell.add(curCharacter);
+        curCharacter.handle(state);
+//
+//        Hit hit = new Hit();
+//        hit.execute(state, curCharacter);
     }
 }

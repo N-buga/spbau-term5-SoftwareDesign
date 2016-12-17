@@ -5,11 +5,15 @@ package Model;
  * This class provides the methods to work with all objects that is placed on the map or can be placed.
  * And useful class Position - for determining the exact place on the map.
  */
-public abstract class MapObject {
+public abstract class MapObject{
     private Position position;
+    private final int priority = 0;
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+    public void setPosition(int i, int j) {
+        this.position = new Position(i, j);
     }
     public Position getPosition() {
         return position;
@@ -36,5 +40,14 @@ public abstract class MapObject {
         public boolean equals(Position other) {
             return (i == other.geti() && j == other.getj());
         }
+
+    }
+
+    public char getSymbol() {
+        return '*';
+    }
+
+    public int getPriority() {
+        return priority;
     }
 }

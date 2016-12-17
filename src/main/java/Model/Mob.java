@@ -11,9 +11,4 @@ public class Mob extends Character {
     public Mob(int power, int healPoints) {
         super(power, healPoints);
     }
-
-    @Override
-    void handle(Set<MapObject> newNeighbors) {
-
-    }
 }

@@ -109,8 +109,8 @@ public class StateBuilder {
                     jPlayer = j;
                     break;
                 }
-                if (iPlayer != -1) break;
             }
+            if (iPlayer != -1) break;
         }
         if (iPlayer == -1 || jPlayer == -1) {
             throw new IllegalStateException("Can not set player cause there are no free Cells in the Map");
@@ -142,6 +142,8 @@ public class StateBuilder {
             for (int j = 0; j < strLen; j++) {
                 Cell curCell = cellsArray[i][j];
                 if (!curCell.isWall()) {
+                    Empty empty = new Empty();
+                    empty.setPosition(i, j);
                     curCell.add(new Empty());
                 }
             }

@@ -1,7 +1,9 @@
 package Model;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by n_buga on 15.12.16.
@@ -9,7 +11,15 @@ import java.util.Set;
 public class Cell {
     MapObject.Position position;
 
-    private Set<MapObject> mapObjects = new HashSet<MapObject>();
+    private TreeSet<MapObject> mapObjects = new TreeSet<MapObject>(new Comparator<MapObject>() {
+        public int compare(MapObject o1, MapObject o2) {
+            if (o1.getPriority() - o2.getPriority() != 0) {
+                return o1.getPriority() - o2.getPriority();
+            } else {
+                return o2.hashCode() - o1.hashCode();
+            }
+        }
+    });
 
     public Cell(MapObject.Position position) {
         this.position = position;
@@ -51,5 +61,9 @@ public class Cell {
 
     public void delete(MapObject mapObject) {
         mapObjects.remove(mapObject);
+    }
+
+    public char getSymbol() {
+        return mapObjects.last().getSymbol();
     }
 }

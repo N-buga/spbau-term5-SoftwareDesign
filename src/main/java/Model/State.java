@@ -29,6 +29,21 @@ public class State {
         }
     }
 
+    public void doTurn() {
+        player.doTurn(this);
+        for (Mob mob: mobs) {
+            mob.doTurn(this);
+        }
+    }
+
+    public void print() {
+        map.draw();
+        player.draw();
+        for (Mob mob: mobs) {
+            mob.draw();
+        }
+    }
+
     public void endGame() {
         System.exit(0);
     }
