@@ -1,7 +1,6 @@
-package TestModel.TestTurn;
+package ru.spbau.mit;
 
-import Model.*;
-import Model.Character;
+import ru.spbau.mit.Model.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,6 +9,8 @@ import org.junit.Test;
  * All turns influence State somehow. It checks that Move change State in proper way.
  */
 public class TestMove extends Assert{
+    private Controller controller = new Controller();
+
     @Test
     public void simplePlayerAndMobCheckMovesWithoutWalls() {
         int iStart = StateBuilder.defaultColLen/2;
@@ -20,22 +21,22 @@ public class TestMove extends Assert{
         Player player = new Player();
         Mob mob = new Mob();
 
-        State state = new StateBuilder().setPlayerPos(player, iStart, jStart).build();
+        GameState gameState = new StateBuilder(controller).setPlayerPos(player, iStart, jStart).build();
         Move move = new Move(newPos);
-        move.execute(state, player);
+        move.execute(gameState, player);
 
-        state = new StateBuilder().addMob(mob, iStart, jStart).build();
+        gameState = new StateBuilder(controller).addMob(mob, iStart, jStart).build();
         move = new Move(newPos);
-        move.execute(state, mob);
+        move.execute(gameState, mob);
 
         assertTrue(newPos.equals(mob.getPosition()));
 
-        state = new StateBuilder().setPlayerPos(player, iStart, jStart).addMob(mob, iStart + 1, jStart + 1).build();
+        gameState = new StateBuilder(controller).setPlayerPos(player, iStart, jStart).addMob(mob, iStart + 1, jStart + 1).build();
         Move move1 = new Move(newPos);
         Move move2 = new Move(new MapObject.Position(newPos.geti() + 1, newPos.getj()));
 
-        move1.execute(state, player);
-        move2.execute(state, mob);
+        move1.execute(gameState, player);
+        move2.execute(gameState, mob);
 
         assertTrue(player.getPosition().equals(newPos));
         assertTrue(mob.getPosition().equals(new MapObject.Position(newPos.geti() + 1, newPos.getj())));
@@ -50,21 +51,21 @@ public class TestMove extends Assert{
         Player player = new Player();
         Mob mob = new Mob();
 
-        State state = new StateBuilder()
+        GameState gameState = new StateBuilder(controller)
                 .setPlayerPos(player, start)
                 .setWalls(true)
                 .setWall(wallPos)
                 .build();
         Move move = new Move(wallPos);
-        move.execute(state, player);
+        move.execute(gameState, player);
 
-        state = new StateBuilder()
+        gameState = new StateBuilder(controller)
                 .addMob(mob, start)
                 .setWalls(true)
                 .setWall(wallPos)
                 .build();
         move = new Move(wallPos);
-        move.execute(state, mob);
+        move.execute(gameState, mob);
 
         assertTrue(start.equals(player.getPosition()));
         assertTrue(start.equals(mob.getPosition()));
@@ -77,15 +78,15 @@ public class TestMove extends Assert{
         Player player = new Player();
         Move move1 = new Move(-1, 0);
         Move move2 = new Move(0, 5);
-        State state = new StateBuilder(colLen, strLen).setPlayer(player).build();
+        GameState gameState = new StateBuilder(colLen, strLen, controller).setPlayer(player).build();
 
         assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
 
-        move1.execute(state, player);
+        move1.execute(gameState, player);
 
         assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
 
-        move2.execute(state, player);
+        move2.execute(gameState, player);
 
         assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
     }

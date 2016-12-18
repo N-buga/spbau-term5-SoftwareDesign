@@ -1,4 +1,4 @@
-package Model;
+package ru.spbau.mit.Model;
 
 /**
  * Created by n_buga on 15.12.16.
@@ -7,7 +7,6 @@ package Model;
  */
 public abstract class MapObject{
     private Position position;
-    private final int priority = 0;
 
     public void setPosition(Position position) {
         this.position = position;
@@ -47,7 +46,5 @@ public abstract class MapObject{
         return '*';
     }
 
-    public int getPriority() {
-        return priority;
-    }
+    abstract public int getPriority();
 }

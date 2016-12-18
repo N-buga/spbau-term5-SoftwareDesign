@@ -1,4 +1,6 @@
-package Model;
+package ru.spbau.mit.Model;
+
+import ru.spbau.mit.Controller;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,18 +20,21 @@ public class StateBuilder {
     private int countMobs = 0;
     private int countWalls = 0;
     private Set<Mob> mobs = new HashSet<Mob>();
+    private Controller controller;
 /*    private int countStuff = defaultCountStuff; */
 
     private Cell[][] cellsArray;
     private Player player;
 
-    public StateBuilder() {
+    public StateBuilder(Controller controller) {
+        this.controller = controller;
         initCellArray();
     }
 
-    public StateBuilder(int colLen, int strLen) {
+    public StateBuilder(int colLen, int strLen, Controller controller) {
         this.colLen = colLen;
         this.strLen = strLen;
+        this.controller = controller;
         initCellArray();
     }
 
@@ -134,7 +139,7 @@ public class StateBuilder {
         return this.setPlayerPos(player, new MapObject.Position(i, j));
     }
 
-    public State build() {
+    public GameState build() {
         if (player == null) {
             setPlayer(new Player());
         }
@@ -148,7 +153,7 @@ public class StateBuilder {
                 }
             }
         }
-        return new State(new Map(cellsArray), mobs, player);
+        return new GameState(new Map(cellsArray), mobs, player, controller);
     }
 
     private void initCellArray() {

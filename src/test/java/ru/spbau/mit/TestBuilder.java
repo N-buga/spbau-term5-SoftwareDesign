@@ -1,7 +1,6 @@
-package TestModel.TestTurn;
+package ru.spbau.mit;
 
-import Model.*;
-import javafx.geometry.Pos;
+import ru.spbau.mit.Model.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -10,6 +9,8 @@ import org.junit.Test;
  * Builder creates a map using some settings which was given it. It creates some random map.
  */
 public class TestBuilder extends Assert{
+    Controller controller = new Controller();
+
     @Test
     public void testSizeAndPlayerPosition() {
         final int strLen = 7;
@@ -17,14 +18,14 @@ public class TestBuilder extends Assert{
 
         final MapObject.Position playerPos = new MapObject.Position(0, 5);
 
-        StateBuilder stateBuilder = new StateBuilder(colLen, strLen);
+        StateBuilder stateBuilder = new StateBuilder(colLen, strLen, controller);
         Player player = new Player();
-        State state = stateBuilder
+        GameState gameState = stateBuilder
                 .setPlayerPos(player, playerPos)
                 .build();
-        assertEquals(state.getMap().getColLen(), colLen);
-        assertEquals(state.getMap().getStrLen(), strLen);
-        assertTrue(state.getMap().getCell(playerPos).containsPlayer());
+        assertEquals(gameState.getMap().getColLen(), colLen);
+        assertEquals(gameState.getMap().getStrLen(), strLen);
+        assertTrue(gameState.getMap().getCell(playerPos).containsPlayer());
         assertTrue(player.getPosition().equals(playerPos));
     }
 
@@ -32,7 +33,7 @@ public class TestBuilder extends Assert{
     public void testMobPosition() {
         Mob mob = new Mob();
         final MapObject.Position mobPos = new MapObject.Position(0, 0);
-        State state = new StateBuilder()
+        GameState gameState = new StateBuilder(controller)
                 .addMob(mob, mobPos)
                 .build();
 
@@ -48,7 +49,7 @@ public class TestBuilder extends Assert{
         MapObject.Position playerPos = new MapObject.Position(0, 1);
         MapObject.Position wallPos = new MapObject.Position(0, 2);
 
-        State state = new StateBuilder()
+        GameState gameState = new StateBuilder(controller)
                 .addMob(mob, mobPos)
                 .setPlayerPos(player, playerPos)
                 .setWalls(true)
@@ -57,9 +58,9 @@ public class TestBuilder extends Assert{
 
         assertTrue(mob.getPosition().equals(mobPos));
         assertTrue(player.getPosition().equals(playerPos));
-        assertTrue(state.getMap().getCell(wallPos).isWall());
-        assertTrue(state.getMap().getCell(playerPos).containsPlayer());
-        assertTrue(state.getMap().getCell(mobPos).containsMob());
+        assertTrue(gameState.getMap().getCell(wallPos).isWall());
+        assertTrue(gameState.getMap().getCell(playerPos).containsPlayer());
+        assertTrue(gameState.getMap().getCell(mobPos).containsMob());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -68,6 +69,6 @@ public class TestBuilder extends Assert{
         Player player = new Player();
 
         MapObject.Position pos = new MapObject.Position(0, 0);
-        new StateBuilder().addMob(mob, pos).setPlayerPos(player, pos).build();
+        new StateBuilder(controller).addMob(mob, pos).setPlayerPos(player, pos).build();
     }
 }

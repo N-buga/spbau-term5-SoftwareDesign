@@ -1,12 +1,12 @@
-package Model;
+package ru.spbau.mit.Model;
 
 /**
  * Created by n_buga on 15.12.16.
  */
 public class Hit implements Turn{
-    public void execute(State state, Character curCharacter) {
+    public void execute(GameState gameState, Character curCharacter) {
         MapObject.Position curPos = curCharacter.getPosition();
-        Map map = state.getMap();
+        Map map = gameState.getMap();
         Cell curCell = map.getCell(curPos);
         for (MapObject mapObject: curCell.getMapObjects()) {
             if (curCharacter == mapObject) continue;
@@ -14,7 +14,7 @@ public class Hit implements Turn{
                 Character enemy = (Character)mapObject;
                 enemy.getDamage(curCharacter.getPower());
                 if (enemy.isKilled()) {
-                    state.delete(enemy);
+                    gameState.delete(enemy);
                 }
             }
         }

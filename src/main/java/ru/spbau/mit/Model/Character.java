@@ -1,8 +1,6 @@
-package Model;
+package ru.spbau.mit.Model;
 
-import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * Created by n_buga on 15.12.16.
@@ -20,7 +18,7 @@ public abstract class Character extends MapObject {
         this.healPoints = healPoints;
     }
 
-    public void doTurn(State state) {
+    public void doTurn(GameState gameState) {
         Turn turn;
         int i = random.nextInt(5);
         switch (i) {
@@ -40,15 +38,15 @@ public abstract class Character extends MapObject {
                 turn = new Hit();
                 break;
         }
-        turn.execute(state, this);
+        turn.execute(gameState, this);
     }
     /**
      * Each moving MapObject can do something with objects in the cell it arrived. For example player can take
      * the stuff in the cell.
      */
-    void handle(State state) {
+    void handle(GameState gameState) {
         Hit hit = new Hit();
-        hit.execute(state, this);
+        hit.execute(gameState, this);
     }
 
     public void getDamage(int damage) {

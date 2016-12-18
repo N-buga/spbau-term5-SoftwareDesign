@@ -1,6 +1,6 @@
-package TestModel.TestTurn;
+package ru.spbau.mit;
 
-import Model.*;
+import ru.spbau.mit.Model.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,11 +8,13 @@ import org.junit.Test;
  * Created by n_buga on 16.12.16.
  */
 public class TestHit extends Assert{
+    Controller controller = new Controller();
+
     @Test
     public void testOneCharacterInCell() {
         Player player = new Player();
         Mob mob = new Mob();
-        State gameState = new StateBuilder(5, 5).setPlayerPos(player, 0, 0).addMob(mob, 0, 1).build();
+        GameState gameState = new StateBuilder(5, 5, controller).setPlayerPos(player, 0, 0).addMob(mob, 0, 1).build();
         int hpPlayerBefore = player.getHealPoints();
         int hpMobBefore = mob.getHealPoints();
         int powerPlayerBefore = player.getPower();
@@ -43,19 +45,19 @@ public class TestHit extends Assert{
         Mob mob = new Mob();
         MapObject.Position begPlayerPosition = new MapObject.Position(0, 0);
         MapObject.Position begMobPosition = new MapObject.Position(0, 1);
-        State state = new StateBuilder().addMob(mob, begMobPosition).setPlayerPos(player, begPlayerPosition).build();
+        GameState gameState = new StateBuilder(controller).addMob(mob, begMobPosition).setPlayerPos(player, begPlayerPosition).build();
         Move move = new Move(begMobPosition);
         int hpPlayerBefore = player.getHealPoints();
         int hpMobBefore = mob.getHealPoints();
         int powerPlayerBefore = player.getPower();
         int powerMobBefore = mob.getPower();
-        move.execute(state, player);
+        move.execute(gameState, player);
         assertTrue(player.getPosition().equals(mob.getPosition()));
         assertEquals(hpMobBefore - powerPlayerBefore, mob.getHealPoints());
         assertEquals(hpPlayerBefore, player.getHealPoints());
         if (!mob.isKilled()) {
             Hit hit = new Hit();
-            hit.execute(state, mob);
+            hit.execute(gameState, mob);
             assertEquals(hpPlayerBefore - powerMobBefore, player.getHealPoints());
             assertEquals(hpMobBefore - powerPlayerBefore, mob.getHealPoints());
         }
@@ -68,7 +70,7 @@ public class TestHit extends Assert{
         Mob mob2 = new Mob();
         MapObject.Position begPlayerPosition = new MapObject.Position(0, 0);
         MapObject.Position begMobPosition = new MapObject.Position(0, 1);
-        State state = new StateBuilder()
+        GameState gameState = new StateBuilder(controller)
                 .addMob(mob1, begMobPosition)
                 .addMob(mob2, begMobPosition)
                 .setPlayerPos(player, begPlayerPosition)
@@ -78,7 +80,7 @@ public class TestHit extends Assert{
         int hpMob2Before = mob2.getHealPoints();
         int powerPlayerBefore = player.getPower();
 
-        move.execute(state, player);
+        move.execute(gameState, player);
         assertTrue(begMobPosition.equals(player.getPosition()));
         assertEquals(hpMob1Before - powerPlayerBefore, mob1.getHealPoints());
         assertEquals(hpMob2Before - powerPlayerBefore, mob2.getHealPoints());
