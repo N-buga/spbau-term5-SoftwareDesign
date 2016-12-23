@@ -1,92 +1,74 @@
 package ru.spbau.mit;
 
+
+import org.apache.log4j.Logger;
 import ru.spbau.mit.Model.*;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Scanner;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by n_buga on 17.12.16.
+ * UI shows the part of the map, ant implements interaction with user.
  */
 public class UI {
-    private Controller controller;
+    private static Logger log = Logger.getLogger(UI.class);
     private MapObject.Position playerPosition;
 
-    public UI(Controller controller) {
-        this.controller = controller;
-    }
-    public void repaint(Player player, Map map) {
-        map.draw();
-        System.out.printf("HP: %d; Power: %d\n", player.getHealPoints(), player.getPower());
+    public UI() {}
+
+    public void repaintOut(Player player, Map map) {
+        log.info("Begin repaint");
+        Cell[][] visibleMap = map.getVisibleArea(player.getPosition());
+        for (int i = 0; i < visibleMap.length; i++) {
+            for (int j = 0; j < visibleMap[0].length; j++) {
+                System.out.print(visibleMap[i][j].getSymbol());
+            }
+            System.out.println();
+        }
+
+        System.out.printf("Your:\nHP: %d; Power: %d\n", player.getHealPoints(), player.getPower());
+
+        for (int i = 0; i < visibleMap.length; i++) {
+            for (int j = 0; j < visibleMap[0].length; j++) {
+                if (visibleMap[i][j].containsMob()) {
+                    Mob mob = visibleMap[i][j].getMob();
+                    System.out.printf("Mob %c:\n", mob.getSymbol());
+                    System.out.printf("HP: %d; Power: %d\n", mob.getHealPoints(), mob.getPower());
+                }
+            }
+        }
+        log.info("End repaint");
     }
 
+    /**
+     * You can write any string, but it can see only on the first letter. It needs to be 'w', 'a', 's', or 'd'.
+     */
     public Turn awaitTurn(Player player) throws IOException {
+        log.info("Await turn from keyboard");
         playerPosition = player.getPosition();
         Scanner scanner = new Scanner(System.in);
         char key = scanner.next().charAt(0);
-        while (key != 'w' && key != 'a' && key != 's' && key != 'd') {
-            key = scanner.next().charAt(0);
-        }
         switch (key) {
             case 'w':
-                return new Move(createNewPos(-1, 0));
+                return new Move(playerPosition.up());
             case 'a':
-                return new Move(createNewPos(0, -1));
+                return new Move(playerPosition.left());
             case 's':
-                return new Move(createNewPos(1, 0));
+                return new Move(playerPosition.down());
             case 'd':
-                return new Move(createNewPos(0, 1));
+                return new Move(playerPosition.right());
             default:
-                return new Hit();
+                return new Move(playerPosition);
         }
     }
 
-    public MapObject.Position createNewPos(int deltai, int deltaj) {
-        return new MapObject.Position(playerPosition.geti() + deltai, playerPosition.getj() + deltaj);
-    }
-/*    public void endAwaitTurn() {
-        isAllowedType = false;
+    public void paintWin() {
+        System.out.println("You're winner!");
     }
 
-    public void handleTurn(int deltai, int deltaj) {
-        lock.lock();
-        if (isAllowedType) {
-            endAwaitTurn();
-            lock.unlock();
-            controller.gotTurn(new Move(playerPosition.geti() - 1, playerPosition.getj()));
-        }
+    public void paintLoose() {
+        System.out.println("You're failed!");
     }
-
-    public void keyTyped(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        switch( keyCode ) {
-            case KeyEvent.VK_UP:
-                handleTurn(-1, 0);
-                break;
-            case KeyEvent.VK_DOWN:
-                handleTurn(1, 0);
-                break;
-            case KeyEvent.VK_LEFT:
-                handleTurn(0, -1);
-                break;
-            case KeyEvent.VK_RIGHT :
-                handleTurn(0, 1);
-                break;
-        }
-    }
-
-    public void keyPressed(KeyEvent e) {
-
-    }
-
-    public void keyReleased(KeyEvent e) {
-
-    } */
-
 }

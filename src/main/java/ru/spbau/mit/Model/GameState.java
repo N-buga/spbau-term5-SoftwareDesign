@@ -1,5 +1,6 @@
 package ru.spbau.mit.Model;
 
+import org.apache.log4j.Logger;
 import ru.spbau.mit.Controller;
 
 import java.util.Set;
@@ -9,6 +10,8 @@ import java.util.Set;
  * This class stores all information about game and provides it. IT also make a one round of game(method doTurn).
  */
 public class GameState {
+    private static Logger log = Logger.getLogger(GameState.class);
+
     private Controller controller;
     private Map map;
     private Set<Mob> mobs;
@@ -21,6 +24,7 @@ public class GameState {
         this.mobs = mobs;
         this.player = player;
         this.controller = controller;
+        log.info("GameState created");
     }
 
     public Player getPlayer() {
@@ -31,24 +35,41 @@ public class GameState {
         return map;
     }
 
-    public void delete(Character character) {
-        if (character instanceof Player) {
-            endGame();
-        } else if (character instanceof Mob){
-            mobs.remove(character);
-        }
-    }
-
+    /**
+     * This method call doTurn for player and all mobs. Then it checks if someone was killed.
+     * It doesn't call doTurn if Character's already been killed.
+     */
     public void doTurn() {
+        log.info("Begin round");
+
         player.doTurn(this);
-        controller.repaint();
-        for (Mob mob: mobs) {
-            mob.doTurn(this);
-            controller.repaint();
+
+        log.info("Player turned");
+
+        mobs.stream().filter(Mob::isAlive).forEach(m -> m.doTurn(this));
+        mobs.stream().filter(m -> !m.isAlive()).forEach(m -> map.getCell(m.getPosition()).delete(m));
+        mobs.removeIf(m -> m.getHealPoints() <= 0);
+
+        if (player.getHealPoints() <= 0) {
+            endGame(false);
+            return;
         }
+        if (mobs.size() == 0) {
+            endGame(true);
+        }
+
+        log.info("Ended round");
+        controller.repaint();
     }
 
-    public void endGame() {
+    /**
+     * This method will be called when the game is end.
+     * @param isWin - if we won or not?
+     */
+    public void endGame(boolean isWin) {
+        log.info("End game");
+        if (isWin) controller.win();
+        else controller.loose();
         gameEnd = true;
     }
 

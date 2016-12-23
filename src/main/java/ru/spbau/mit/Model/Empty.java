@@ -12,6 +12,11 @@ public class Empty extends MapObject {
     }
 
     @Override
+    public char getSymbol() {
+            return '.';
+    }
+
+    @Override
     public int getPriority() {
         return priority;
     }

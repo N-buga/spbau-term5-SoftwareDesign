@@ -1,22 +1,22 @@
 package ru.spbau.mit.Model;
 
-import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
 /**
  * Created by n_buga on 15.12.16.
+ * This class represents one cell in the map. One cell can contains different MapObject - for example Mob and Stuff.
+ * So it saves the List od MapObjects. The element to draw is chosen by its priority, so mapObjects is set.
  */
 public class Cell {
-    MapObject.Position position;
 
-    private TreeSet<MapObject> mapObjects = new TreeSet<MapObject>(new Comparator<MapObject>() {
-        public int compare(MapObject o1, MapObject o2) {
-            if (o1.getPriority() - o2.getPriority() != 0) {
-                return o1.getPriority() - o2.getPriority();
-            } else {
-                return o2.hashCode() - o1.hashCode();
-            }
+    private MapObject.Position position;
+
+    private TreeSet<MapObject> mapObjects = new TreeSet<MapObject>((o1, o2) -> {
+        if (o1.getPriority() - o2.getPriority() != 0) {
+            return o1.getPriority() - o2.getPriority();
+        } else {
+            return o2.hashCode() - o1.hashCode();
         }
     });
 
@@ -24,7 +24,11 @@ public class Cell {
         this.position = position;
     }
 
-    public Set<MapObject> getMapObjects() {
+    public MapObject.Position getPosition() {
+        return position;
+    }
+
+    private Set<MapObject> getMapObjects() {
         return mapObjects;
     }
 
@@ -64,5 +68,44 @@ public class Cell {
 
     public char getSymbol() {
         return mapObjects.last().getSymbol();
+    }
+
+    public boolean free() {
+        return (mapObjects.size() == 0 || (mapObjects.size() == 1 && contains(Empty.class)));
+    }
+
+    public void clear() {
+        mapObjects.clear();
+    }
+
+    public Mob getMob() {
+        for (MapObject mapObject: mapObjects) {
+            if (mapObject.getClass().equals(Mob.class)) {
+                return (Mob)mapObject;
+            }
+        }
+        return null;
+    }
+
+    public boolean containsCharacters() {
+        return getCharacter() != null;
+    }
+
+    public Character getCharacter() {
+        for (MapObject mapObject: getMapObjects()) {
+            if (mapObject instanceof Character) {
+                return (Character)mapObject;
+            }
+        }
+        return null;
+    }
+
+    public Stuff getStuff() {
+        for (MapObject mapObject: getMapObjects()) {
+            if (mapObject instanceof Stuff) {
+                return (Stuff) mapObject;
+            }
+        }
+        return null;
     }
 }

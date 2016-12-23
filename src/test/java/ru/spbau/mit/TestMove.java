@@ -1,5 +1,6 @@
 package ru.spbau.mit;
 
+import javafx.geometry.Pos;
 import ru.spbau.mit.Model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,25 +14,27 @@ public class TestMove extends Assert{
 
     @Test
     public void simplePlayerAndMobCheckMovesWithoutWalls() {
-        int iStart = StateBuilder.defaultColLen/2;
-        int jStart = StateBuilder.defaultStrLen/2;
+        int iStart = GameBuilder.defaultColLen/2;
+        int jStart = GameBuilder.defaultStrLen/2;
 
-        final MapObject.Position newPos = new MapObject.Position(0, 0);
+        final MapObject.Position newPos = new MapObject.Position(iStart - 1, jStart - 1);
 
         Player player = new Player();
         Mob mob = new Mob();
 
-        GameState gameState = new StateBuilder(controller).setPlayerPos(player, iStart, jStart).build();
+        GameState gameState = new GameBuilder(controller).setPlayerPos(player, iStart, jStart).build();
         Move move = new Move(newPos);
         move.execute(gameState, player);
 
-        gameState = new StateBuilder(controller).addMob(mob, iStart, jStart).build();
+        assertTrue(newPos.equals(player.getPosition()));
+
+        gameState = new GameBuilder(controller).addMob(mob, iStart, jStart).build();
         move = new Move(newPos);
         move.execute(gameState, mob);
 
         assertTrue(newPos.equals(mob.getPosition()));
 
-        gameState = new StateBuilder(controller).setPlayerPos(player, iStart, jStart).addMob(mob, iStart + 1, jStart + 1).build();
+        gameState = new GameBuilder(controller).setPlayerPos(player, iStart, jStart).addMob(mob, iStart + 1, jStart + 1).build();
         Move move1 = new Move(newPos);
         Move move2 = new Move(new MapObject.Position(newPos.geti() + 1, newPos.getj()));
 
@@ -44,24 +47,22 @@ public class TestMove extends Assert{
 
     @Test
     public void playerAndMobGoToWall() {
-        final MapObject.Position start = new MapObject.Position(StateBuilder.defaultColLen/2,
-                StateBuilder.defaultStrLen/2);
+        final MapObject.Position start = new MapObject.Position(GameBuilder.defaultColLen/2,
+                GameBuilder.defaultStrLen/2);
         final MapObject.Position wallPos = new MapObject.Position(0, 0);
 
         Player player = new Player();
         Mob mob = new Mob();
 
-        GameState gameState = new StateBuilder(controller)
+        GameState gameState = new GameBuilder(controller)
                 .setPlayerPos(player, start)
-                .setWalls(true)
                 .setWall(wallPos)
                 .build();
         Move move = new Move(wallPos);
         move.execute(gameState, player);
 
-        gameState = new StateBuilder(controller)
+        gameState = new GameBuilder(controller)
                 .addMob(mob, start)
-                .setWalls(true)
                 .setWall(wallPos)
                 .build();
         move = new Move(wallPos);
@@ -78,7 +79,7 @@ public class TestMove extends Assert{
         Player player = new Player();
         Move move1 = new Move(-1, 0);
         Move move2 = new Move(0, 5);
-        GameState gameState = new StateBuilder(colLen, strLen, controller).setPlayer(player).build();
+        GameState gameState = new GameBuilder(colLen, strLen, controller).setPlayer(player).build();
 
         assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
 
@@ -89,5 +90,37 @@ public class TestMove extends Assert{
         move2.execute(gameState, player);
 
         assertTrue(player.getPosition().equals(new MapObject.Position(0, 0)));
+    }
+
+    @Test
+    public void playerMoveToMob_MobMoveToPlayer() {
+        final MapObject.Position playerPos = new MapObject.Position(GameBuilder.defaultColLen/2,
+                GameBuilder.defaultStrLen/2);
+        final MapObject.Position mobPos = new MapObject.Position(0, 0);
+        Player player = new Player();
+        Mob mob = new Mob();
+        int mobHPBefore = mob.getHealPoints();
+        int playerHPBefore = player.getHealPoints();
+        GameState gameState = new GameBuilder(new Controller())
+                .setPlayerPos(player, playerPos)
+                .addMob(mob, mobPos)
+                .build();
+
+        Move playerMove = new Move(mobPos);
+        playerMove.execute(gameState, player);
+
+        assertEquals(mob.getHealPoints(), mobHPBefore - player.getPower());
+        assertTrue(player.getPosition().equals(playerPos));
+
+        Move mobMove = new Move(playerPos);
+        mobMove.execute(gameState, mob);
+
+        assertEquals(player.getHealPoints(), playerHPBefore - mob.getPower());
+        assertTrue(mob.getPosition().equals(mobPos));
+    }
+
+    @Test
+    public void mobMoveToPlayer() {
+
     }
 }

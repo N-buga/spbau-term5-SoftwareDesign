@@ -1,8 +1,7 @@
 package ru.spbau.mit;
 
-import jdk.internal.dynalink.linker.GuardedTypeConversion;
+import org.apache.log4j.Logger;
 import ru.spbau.mit.Model.*;
-import ru.spbau.mit.Model.Character;
 
 import java.io.IOException;
 
@@ -11,21 +10,25 @@ import java.io.IOException;
  * This class is responsible for interaction UI and Model.
  */
 public class Controller {
+    private static Logger log = Logger.getLogger(Controller.class);
     private GameState gameState;
     private UI ui;
 
     public static void main(String[] args) {
+        log.info("Game start");
         Controller controller = new Controller();
-        GameState gameState = new StateBuilder(controller).build();
+        GameState gameState = (new GameBuilder(controller)).getRandGame(11, 13, 5);
+        if (gameState == null) {
+            System.out.println("Too many rooms for size");
+            return;
+        }
         controller.setGameState(gameState);
-        controller.setUi(new UI(controller));
+        controller.setUi(new UI());
         controller.repaint();
-        for (int i = 0; i < 10; i++) {
+        while (!gameState.isGameEnd()) {
             gameState.doTurn();
         }
-/*        while (!gameState.isGameEnd()) {
-            gameState.doTurn();
-        } */
+        log.info("Game end");
     }
 
     public void setGameState(GameState gameState) {
@@ -37,15 +40,29 @@ public class Controller {
     }
 
     public void repaint() {
-        ui.repaint(gameState.getPlayer(), gameState.getMap());
+        ui.repaintOut(gameState.getPlayer(), gameState.getMap());
     }
 
     public Turn awaitTurn(Player player) {
+        log.info("Await player turn");
         try {
             return ui.awaitTurn(player);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error when was reading. Try one more time.");
         }
-        return new Hit();
+        log.info("Get player turn");
+        return new Move(player.getPosition());
+    }
+
+    public void win() {
+        ui.paintWin();
+    }
+
+    public void loose() {
+        ui.paintLoose();
+    }
+
+    public void errorUI() {
+        System.out.println("Error with UI!");
     }
 }
