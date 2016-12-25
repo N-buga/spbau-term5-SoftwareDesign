@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package ru.spbau.mit.chat_proto;
+
+option java_outer_classname = "ChatProto";
+option objc_class_prefix = "CP";
+option java_multiple_files = true;
+option java_package = "ru.spbau.mit.chat_proto";
+
+message ChatMsg {
+    enum Type {
+        USUAL = 0;
+        NICK = 1;
+    }
+    Type type = 1;
+    string contains = 2;
+}
+
+service Messenger {
+    rpc sendMsgs(stream ChatMsg) returns (stream ChatMsg) {}
+}
+
+
+
+
