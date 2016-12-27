@@ -7,6 +7,8 @@ from src.Commands.Exit import Exit
 from src.Commands.Grep import Grep
 from src.Commands.Pwd import Pwd
 from src.Commands.Wc import Wc
+from src.Commands.Cd import Cd
+from src.Commands.Ls import Ls
 from src.ParserUtils import read_argument, read_word, count_of_spaces
 
 from src.Commands.Echo import Echo
@@ -23,7 +25,9 @@ class NameCommands: # KeyWords for definition wich command we need to create
     PWD = "pwd"
     WC = "wc"
     GREP = "grep"
-    commands = ["exit", "cat", "echo", "pwd", "wc", "grep"] # this is direct command as they in the shell
+    CD = "cd"
+    LS = "ls"
+    commands = ["exit", "cat", "echo", "pwd", "wc", "grep", "cd", "ls"] # this is direct command as they in the shell
 
 
 def create_command(name_command, string_arguments): # name_command - the KeyWord, string_arguments -
@@ -51,3 +55,9 @@ def create_command(name_command, string_arguments): # name_command - the KeyWord
 
     if name_command == NameCommands.GREP:
         return Grep(string_arguments)
+
+    if name_command == NameCommands.CD:
+        return Cd(string_arguments)
+
+    if name_command == NameCommands.LS:
+        return Ls()
