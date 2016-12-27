@@ -3,7 +3,7 @@ import os
 import re
 
 import io
-from termcolor import colored
+#from termcolor import colored
 
 import sys as _sys
 
@@ -76,7 +76,7 @@ class Grep(Command):
             prev_ind = 0
             for i in iter:
                 ans += line[prev_ind:i.start()]
-                ans += colored(line[i.start():i.end()], 'red')
+                ans += line[i.start():i.end()]
                 prev_ind = i.end()
                 cnt_after_line = 0
             if cnt_after_line <= self.args.A:

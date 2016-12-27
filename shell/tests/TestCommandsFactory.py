@@ -7,6 +7,8 @@ from src.Commands.Executable import Executable
 from src.Commands.Exit import Exit
 from src.Commands.Pwd import Pwd
 from src.Commands.Wc import Wc
+from src.Commands.Cd import Cd
+from src.Commands.Ls import Ls
 from src.CommandsFactory import create_command
 
 
@@ -54,3 +56,12 @@ class TestCommandsFactory(TestCase):
         cmd = create_command('wc', 'a b c d')
         self.assertTrue(cmd, Wc)
         self.assertEqual(cmd.arguments, ['a', 'b', 'c', 'd'])
+
+    def test_create_command_cd(self):
+        cmd = create_command('cd', '../')
+        self.assertTrue(isinstance(cmd, Cd))
+        self.assertEqual(cmd.arguments, '../')
+
+    def test_create_command_ls(self):
+        cmd = create_command('ls', 'smth')
+        self.assertTrue(isinstance(cmd, Ls))
