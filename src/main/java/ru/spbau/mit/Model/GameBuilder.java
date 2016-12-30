@@ -23,7 +23,7 @@ public class GameBuilder {
     private int countWalls = 0;
     private Set<Mob> mobs = new HashSet<>();
     private Controller controller;
-    private final Random random = new Random();
+    private final static Random random = new Random();
 
     private Cell[][] cellsArray;
     private Player player;
@@ -44,7 +44,7 @@ public class GameBuilder {
      * If we try to add Wall to cell where there is something else we throw exception.
      */
     public GameBuilder setWall(MapObject.Position position) {
-        if (countWalls + 1 > colLen*strLen) {
+        if (countWalls + 1 > colLen * strLen) {
             throw new IllegalStateException("Can not be too many walls");
         }
         Cell curCell = cellsArray[position.geti()][position.getj()];

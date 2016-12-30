@@ -1,13 +1,14 @@
 package ru.spbau.mit;
 
-import ru.spbau.mit.Model.*;
-import org.junit.Assert;
 import org.junit.Test;
+import ru.spbau.mit.Model.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by n_buga on 18.12.16.
  */
-public class TestCell extends Assert {
+public class TestCell {
     @Test
     public void getObjWithMaxPriority() {
         Cell cell = new Cell(new MapObject.Position(0, 0));

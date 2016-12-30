@@ -1,18 +1,17 @@
 package ru.spbau.mit;
 
-import javafx.geometry.Pos;
-import ru.spbau.mit.Model.*;
-import org.junit.Assert;
 import org.junit.Test;
+import ru.spbau.mit.Model.*;
 
-import java.awt.*;
-import java.util.function.Consumer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;Test
 
 /**
  * Created by n_buga on 15.12.16.
  * Builder creates a map using some settings which was given it. It creates some random map.
  */
-public class TestBuilder extends Assert{
+public class TestBuilder {
     Controller controller = new Controller();
 
     @Test

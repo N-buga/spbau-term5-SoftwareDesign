@@ -11,7 +11,7 @@ import java.util.Random;
 public abstract class Character extends MapObject {
     private static Logger log = Logger.getLogger(Character.class);
 
-    private Random random = new Random();
+    private final static Random random = new Random();
     private int power = random.nextInt(100) + 1;
     private int healPoints = random.nextInt(300) + 1;
 
@@ -61,15 +61,19 @@ public abstract class Character extends MapObject {
     public int getPower() {
         return power;
     }
+
     public void setPower(int newPower) {
         power = newPower;
     }
+
     public void setHP(int newHP) {
         healPoints = newHP;
     }
+
     public int getHealPoints() {
         return healPoints;
     }
+
     public void draw() {
         System.out.println(getSymbol());
         System.out.printf("HP: %d\nPower:%d\n", getHealPoints(), getPower());

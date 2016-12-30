@@ -42,12 +42,7 @@ public class Cell {
     }
 
     public boolean contains(Class clazz) {
-        for (MapObject mapObject: mapObjects) {
-            if (mapObject.getClass().equals(clazz)) {
-                return true;
-            }
-        }
-        return false;
+        return mapObjects.stream().anyMatch(mapObject -> mapObject.getClass().equals(clazz));
     }
 
     public boolean containsPlayer() {
@@ -79,12 +74,10 @@ public class Cell {
     }
 
     public Mob getMob() {
-        for (MapObject mapObject: mapObjects) {
-            if (mapObject.getClass().equals(Mob.class)) {
-                return (Mob)mapObject;
-            }
-        }
-        return null;
+        return (Mob) mapObjects.stream()
+                .filter(mapObject -> mapObject.getClass().equals(Mob.class))
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean containsCharacters() {
@@ -92,20 +85,17 @@ public class Cell {
     }
 
     public Character getCharacter() {
-        for (MapObject mapObject: getMapObjects()) {
-            if (mapObject instanceof Character) {
-                return (Character)mapObject;
-            }
-        }
-        return null;
+        return (Character) getMapObjects()
+                .stream()
+                .filter(mapObject -> mapObject instanceof Character)
+                .findFirst()
+                .orElse(null);
     }
 
     public Stuff getStuff() {
-        for (MapObject mapObject: getMapObjects()) {
-            if (mapObject instanceof Stuff) {
-                return (Stuff) mapObject;
-            }
-        }
-        return null;
+        return (Stuff) getMapObjects().stream()
+                .filter(mapObject -> mapObject instanceof Stuff)
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * And useful class Position - for determining the exact place on the map.
  */
 public abstract class MapObject{
-    private static Position position;
+    private Position position;
 
     public void setPosition(Position position) {
         this.position = position;
