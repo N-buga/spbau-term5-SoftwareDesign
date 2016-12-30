@@ -5,7 +5,7 @@ import ru.spbau.mit.Model.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;Test
+import static org.junit.Assert.assertFalse;
 
 /**
  * Created by n_buga on 15.12.16.
